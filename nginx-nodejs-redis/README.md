@@ -106,3 +106,21 @@ web2: Total number of visits is: 3
 $ docker compose down
 ```
 
+## Request Flow
+Complete Request Flow (Numbered Steps)
+1. Step 1 (External Request): An external client sends an HTTP request to the host machine on Port 80.
+2. Step 2 (Nginx Ingress): The host forwards port 80 directly into the nginx reverse proxy container.
+3. Step 3 (Service Discovery & Proxying): Nginx reads its configuration and routes the request internally across the Docker network bridge:
+    - Internal Proxy: Nginx routes to http://web1:5000 or http://web2:5000 using Docker's internal DNS.
+    - External Host Port Access: Alternatively, if Nginx accesses services via host ports, it routes to http://host:81 for web1 or http://host:82 for web2.
+4. Step 4 (Container Namespace Execution): The request arrives inside web1 or web2's isolated network namespace, where the application process is listening internally on Port 5000.
+
+## Clarifying the Roles
+Role of nginx: Nginx acts as the single entry point (reverse proxy / load balancer). Clients talk only to Nginx on port 80; Nginx then dispatches requests to backend containers (web1 and web2).
+
+Role of Host Ports (81:5000, 82:5000): Exposing host ports 81 and 82 lets you optionally bypass Nginx or test web1 and web2 directly from your host machine browser.
+
+Role of hostname (web1-hn, web2-hn): Defines the explicit network identity/DNS name inside Docker's bridge network. Other containers (like Nginx) can reference these hostnames directly over the internal network on port 5000 without needing host port mapping.
+
+<img width="1024" height="914" alt="image" src="https://github.com/user-attachments/assets/0c26a162-5297-4d25-8028-ba126422e645" />
+<img width="1024" height="914" alt="image" src="https://github.com/user-attachments/assets/a3a02fbf-f936-4d17-ba77-39785c0cd955" />
