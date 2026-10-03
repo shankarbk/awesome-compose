@@ -7,13 +7,13 @@ services:
   web1:
     restart: on-failure
     build: ./web
-    hostname: web1
+    hostname: web1-hn
     ports:
       - '81:5000'
   web2:
     restart: on-failure
     build: ./web
-    hostname: web2
+    hostname: web2-hn
     ports:
       - '82:5000'
   nginx:
